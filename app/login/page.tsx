@@ -34,35 +34,26 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-amber-100 via-yellow-200 to-orange-300">
-        {/* Twin suns in the sky */}
-        <div className="absolute top-12 right-[15%] z-0">
-          <div className="w-24 h-24 rounded-full bg-amber-300/80 shadow-[0_0_60px_30px_rgba(251,191,36,0.4)]" />
-        </div>
-        <div className="absolute top-20 right-[25%] z-0">
-          <div className="w-16 h-16 rounded-full bg-orange-300/70 shadow-[0_0_50px_25px_rgba(251,146,60,0.35)]" />
-        </div>
+      <div className="relative min-h-screen w-full overflow-hidden bg-black">
+        {/* Photorealistic Tatooine desert background */}
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url(/tatooine-bg.jpg)" }}
+        />
 
-        {/* Far background dunes */}
-        <div className="absolute bottom-0 left-0 right-0 z-0 h-[40vh]">
-          <svg viewBox="0 0 1440 320" className="absolute bottom-0 w-full h-full" preserveAspectRatio="none">
-            <path fill="#D4A373" fillOpacity="0.6" d="M0,160 C320,60 640,200 960,100 C1280,0 1440,120 1440,120 L1440,320 L0,320 Z" />
-            <path fill="#C28F59" fillOpacity="0.5" d="M0,200 C240,120 480,220 720,160 C960,100 1200,180 1440,140 L1440,320 L0,320 Z" />
-          </svg>
-        </div>
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 z-[1] bg-black/20" />
 
-        {/* Near background dunes */}
-        <div className="absolute bottom-0 left-0 right-0 z-[1] h-[30vh]">
-          <svg viewBox="0 0 1440 320" className="absolute bottom-0 w-full h-full" preserveAspectRatio="none">
-            <path fill="#B87B41" fillOpacity="0.4" d="M0,220 C200,160 400,260 700,200 C1000,140 1250,220 1440,180 L1440,320 L0,320 Z" />
-          </svg>
+        {/* Twin suns glow in the sky */}
+        <div className="absolute top-12 right-[15%] z-[2] opacity-70">
+          <div className="w-20 h-20 rounded-full bg-amber-300/60 shadow-[0_0_80px_40px_rgba(251,191,36,0.3)]" />
+        </div>
+        <div className="absolute top-20 right-[23%] z-[2] opacity-60">
+          <div className="w-14 h-14 rounded-full bg-orange-300/50 shadow-[0_0_60px_30px_rgba(251,146,60,0.25)]" />
         </div>
 
         {/* Animated sand particles blowing in the wind */}
         <SandParticles />
-
-        {/* Ground */}
-        <div className="absolute bottom-0 left-0 right-0 z-[1] h-[8vh] bg-gradient-to-b from-[#C28F59] to-[#A0663A]" />
 
         {/* Login card floating above the desert */}
         <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
