@@ -58,29 +58,29 @@ export default function LoginPage() {
         {/* Login card floating above the desert */}
         <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
           <div className="w-full max-w-sm">
-            {/* Card with weathered sandstone look */}
-            <div className="relative rounded-2xl backdrop-blur-md bg-white/15 border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.3)] p-8">
+            {/* Card with Apple liquid glass look */}
+            <div className="relative rounded-2xl backdrop-blur-2xl bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25)] p-8">
               {/* Subtle texture overlay */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
               {/* Content */}
               <div className="relative z-10 text-center space-y-6">
-                <h1 className="text-4xl font-bold tracking-tight text-[#5C3A1E] drop-shadow-sm">
+                <h1 className="text-4xl font-bold tracking-tight text-white drop-shadow-lg">
                   DLG Bookclub 📚
                 </h1>
-                <p className="text-[#7A5330]">
-                  No password? <span className="font-semibold text-[#B87B41]">No problem.</span>
+                <p className="text-white/80">
+                  No password? <span className="font-semibold text-amber-300">No problem.</span>
                 </p>
 
                 {sent ? (
-                  <div className="rounded-xl bg-[#F5E6CC]/80 backdrop-blur-sm p-6 shadow-inner border border-[#D4A373]/40">
-                    <p className="text-lg font-medium text-green-800">✨ Magic link sent!</p>
-                    <p className="mt-2 text-sm text-[#7A5330]">
+                  <div className="rounded-xl bg-white/10 backdrop-blur-xl p-6 border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+                    <p className="text-lg font-medium text-green-300">✨ Magic link sent!</p>
+                    <p className="mt-2 text-sm text-white/70">
                       Check your inbox (and spam) for the login link.
                     </p>
                     <button
                       onClick={() => setSent(false)}
-                      className="mt-4 text-sm text-[#B87B41] underline hover:text-[#99632D] transition-colors"
+                      className="mt-4 text-sm text-amber-300 underline hover:text-amber-200 transition-colors"
                     >
                       Send again
                     </button>
@@ -95,7 +95,11 @@ export default function LoginPage() {
                         placeholder="you@example.com"
                         required
                         autoComplete="email"
-                        className="w-full rounded-lg border border-[#D4A373] bg-[#F5E6CC]/70 px-4 py-3 text-center text-lg text-[#3D2510] placeholder:text-[#7A5330]/80 outline-none shadow-inner focus:border-[#B87B41] focus:ring-2 focus:ring-[#D4A373]/50 transition-all"
+                        className="w-full rounded-xl border border-white/30 bg-white/10 backdrop-blur-xl px-4 py-3 text-center text-lg text-white placeholder:text-white/60 outline-none shadow-[0_2px_15px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)] focus:border-white/50 focus:ring-2 focus:ring-white/20 transition-all"
+                      />
+                    </div>
+                    {error && (
+                      <p className="text-sm text-red-300 bg-red-900/40 backdrop-blur-sm rounded-lg px-3 py-2">{error}</p>
                       />
                     </div>
                     {error && (
@@ -104,7 +108,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full rounded-lg bg-gradient-to-r from-[#B87B41] to-[#99632D] px-4 py-3 text-lg font-semibold text-white shadow-lg transition-all hover:from-[#A0663A] hover:to-[#8B5525] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
+                      className="w-full rounded-xl bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-sm px-4 py-3 text-lg font-semibold text-white shadow-lg transition-all hover:from-amber-400 hover:to-orange-400 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 border border-white/20"
                     >
                       {loading ? "Sending…" : "Send Magic Link"}
                     </button>
@@ -114,7 +118,7 @@ export default function LoginPage() {
             </div>
 
             {/* Tatooine flavor text */}
-            <p className="mt-6 text-center text-xs text-[#7A5330]/60">
+            <p className="mt-6 text-center text-xs text-white/40">
               A long time ago in a library far, far away...
             </p>
           </div>
