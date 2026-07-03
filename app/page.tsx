@@ -83,7 +83,7 @@ export default function HomePage() {
           transform-origin: 50% 100%;
           transform: perspective(400px) rotateX(18deg);
           height: 200vh;
-          animation: scrollUp 60s linear infinite;
+          animation: scrollUp 90s linear infinite;
         }
 
         .crawl-content {
