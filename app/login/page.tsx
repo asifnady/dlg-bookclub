@@ -100,10 +100,6 @@ export default function LoginPage() {
                     </div>
                     {error && (
                       <p className="text-sm text-red-300 bg-red-900/40 backdrop-blur-sm rounded-lg px-3 py-2">{error}</p>
-                      />
-                    </div>
-                    {error && (
-                      <p className="text-sm text-red-700 bg-red-100/80 rounded-lg px-3 py-2">{error}</p>
                     )}
                     <button
                       type="submit"
