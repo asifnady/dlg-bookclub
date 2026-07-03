@@ -42,7 +42,7 @@ export default function LoginPage() {
         />
 
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 z-[1] bg-black/20" />
+        <div className="absolute inset-0 z-[1] bg-black/30" />
 
         {/* Twin suns glow in the sky */}
         <div className="absolute top-12 right-[15%] z-[2] opacity-70">
@@ -59,7 +59,7 @@ export default function LoginPage() {
         <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
           <div className="w-full max-w-sm">
             {/* Card with weathered sandstone look */}
-            <div className="relative rounded-2xl backdrop-blur-sm bg-white/10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.2)] p-8">
+            <div className="relative rounded-2xl backdrop-blur-md bg-white/15 border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.3)] p-8">
               {/* Subtle texture overlay */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
