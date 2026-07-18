@@ -42,19 +42,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
 
-    // Send approval email via Resend API
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey) {
+    // Send approval notification via AgentMail to deskofasifnadeem@agentmail.to
+    const agentmailKey = process.env.AGENTMAIL_API_KEY;
+    if (agentmailKey) {
       try {
-        const res = await fetch("https://api.resend.com/emails", {
+        const res = await fetch("https://api.agentmail.to/v1/messages", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${resendKey}`,
+            "Authorization": `Bearer ${agentmailKey}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "DLG Bookclub <onboarding@resend.dev>",
-            to: ["a.nadeem89@gmail.com"],
+            from: "deskofasifnadeem@agentmail.to",
+            to: "deskofasifnadeem@agentmail.to",
             subject: `📚 New Registration: ${first_name.trim()} ${last_name.trim()}`,
             text: `New DLG Bookclub registration request:
 
@@ -62,16 +62,16 @@ Name: ${first_name.trim()} ${last_name.trim()}
 Email: ${cleanEmail}
 City: ${city.trim()}
 
-To approve, update pending_registrations status to 'approved' and create a members entry.`,
+Approve or reject from the Admin Panel once you log in.`,
           }),
         });
 
         if (!res.ok) {
           const errText = await res.text();
-          console.error("Resend API error:", errText);
+          console.error("AgentMail API error:", res.status, errText);
         }
       } catch (emailErr) {
-        console.error("Failed to send approval email:", emailErr);
+        console.error("Failed to send agentmail notification:", emailErr);
       }
     }
 
