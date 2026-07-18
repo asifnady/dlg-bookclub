@@ -11,6 +11,7 @@ export default function HomePage() {
   const [showCursor, setShowCursor] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Blinking cursor
   useEffect(() => {
@@ -26,6 +27,7 @@ export default function HomePage() {
         if (data?.user) {
           setLoggedIn(true);
           setUserName(data.user.name);
+          setIsAdmin(data.user.is_admin || false);
           setPageState("app");
         }
       })
@@ -105,7 +107,7 @@ export default function HomePage() {
 
   // --- Logged-in app ---
   if (loggedIn && pageState === "app") {
-    return <MemberDashboard userName={userName} onLogout={() => { setLoggedIn(false); setPageState("login"); }} />;
+    return <MemberDashboard userName={userName} isAdmin={isAdmin} onLogout={() => { setLoggedIn(false); setPageState("login"); }} />;
   }
 
   return (
@@ -141,8 +143,9 @@ export default function HomePage() {
           <div className="absolute inset-0 flex items-center justify-center z-20">
             <div className="animate-fadeIn">
               <Windows95LoginFlow
-                onLoggedIn={(name) => {
+                onLoggedIn={(name, admin) => {
                   setUserName(name);
+                  setIsAdmin(admin || false);
                   setLoggedIn(true);
                   setPageState("app");
                 }}
@@ -168,7 +171,7 @@ export default function HomePage() {
 
 type LoginStep = "email" | "sending" | "sent" | "register" | "submitted" | "pending" | "error";
 
-function Windows95LoginFlow({ onLoggedIn }: { onLoggedIn: (name: string) => void }) {
+function Windows95LoginFlow({ onLoggedIn }: { onLoggedIn: (name: string, isAdmin?: boolean) => void }) {
   const [step, setStep] = useState<LoginStep>("email");
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -198,7 +201,7 @@ function Windows95LoginFlow({ onLoggedIn }: { onLoggedIn: (name: string) => void
         });
         const sessionData = await sessionRes.json();
         if (sessionData.status === "ok") {
-          onLoggedIn(sessionData.member.name);
+          onLoggedIn(sessionData.member.name, sessionData.member.is_admin);
           return;
         }
         setErrorMsg("Session error. Try again.");
@@ -564,25 +567,38 @@ function Windows95Taskbar() {
   );
 }
 
-/* ─── Member Dashboard (placeholder) ─── */
+/* ─── Member Dashboard ─── */
 
-function MemberDashboard({ userName, onLogout }: { userName: string; onLogout: () => void }) {
+function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; isAdmin?: boolean; onLogout: () => void }) {
   return (
     <div className="min-h-screen bg-[#008080] font-mono flex flex-col items-center justify-center p-6">
       <div className="bg-[#c0c0c0] border-2 border-white border-r-black border-b-black p-8 max-w-md w-full shadow-[4px_4px_0px_#00000040]"
         style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif" }}>
-        <div className="bg-[#000080] text-white px-2 py-1 text-sm font-bold mb-4">📚 DLG Bookclub — Dashboard</div>
+        <div className="bg-[#000080] text-white px-2 py-1 text-sm font-bold mb-4 flex justify-between items-center">
+          <span>📚 DLG Bookclub</span>
+          {isAdmin && <span className="text-[9px] bg-yellow-300 text-black px-1.5 py-[1px]">ADMIN</span>}
+        </div>
         <p className="text-lg font-bold text-black mb-2">Welcome, {userName}! 👋</p>
         <p className="text-[11px] text-gray-700 mb-6">The bookclub dashboard is coming soon. Stay tuned!</p>
-        <button
-          onClick={async () => {
-            await fetch("/api/logout", { method: "POST" });
-            onLogout();
-          }}
-          className="px-5 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400"
-        >
-          Log Out
-        </button>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <a
+              href="/admin"
+              className="px-5 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110 inline-block"
+            >
+              🛠️ Admin Panel
+            </a>
+          )}
+          <button
+            onClick={async () => {
+              await fetch("/api/logout", { method: "POST" });
+              onLogout();
+            }}
+            className="px-5 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400"
+          >
+            Log Out
+          </button>
+        </div>
       </div>
     </div>
   );
