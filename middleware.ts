@@ -1,8 +1,25 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 
 export async function middleware(request: NextRequest) {
+  // Check for custom session cookie first
+  const cookie = request.headers.get("cookie") || "";
+  const sessionMatch = cookie.match(/dlg_session=([^;]+)/);
+  const hasCustomSession = !!sessionMatch;
+
+  const { pathname } = request.nextUrl;
+
+  // Public routes (always accessible)
+  const publicRoutes = ["/login", "/auth/callback", "/join", "/"];
+  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+  const isApiRoute = pathname.startsWith("/api/");
+
+  // Always allow API routes and public routes
+  if (isApiRoute || isPublic) {
+    return NextResponse.next();
+  }
+
+  // Check Supabase session as fallback
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -30,26 +47,15 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-
-  // Public routes
-  const publicRoutes = ["/login", "/auth/callback", "/join", "/"];
-  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
-
-  if (!user && !isPublic) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+  // Allow if user has custom session OR Supabase session
+  if (hasCustomSession || user) {
+    return supabaseResponse;
   }
 
-  // Redirect logged-in users away from login
-  if (user && pathname === "/login") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
-
-  return supabaseResponse;
+  // Not authenticated — redirect to login
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  return NextResponse.redirect(url);
 }
 
 export const config = {
