@@ -604,6 +604,15 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
   const [suggestMsg, setSuggestMsg] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
+  // Past read modal state (admin only)
+  const [showAddPast, setShowAddPast] = useState(false);
+  const [pastTitle, setPastTitle] = useState("");
+  const [pastAuthor, setPastAuthor] = useState("");
+  const [pastMonth, setPastMonth] = useState("");
+  const [pastLink, setPastLink] = useState("");
+  const [addingPast, setAddingPast] = useState(false);
+  const [pastMsg, setPastMsg] = useState<string | null>(null);
+
   const loadBooks = useCallback(async () => {
     setLoading(true);
     try {
@@ -648,6 +657,40 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
       setSuggestMsg("Connection error.");
     }
     setSuggesting(false);
+  };
+
+  const handleAddPast = async () => {
+    if (!pastTitle.trim() || !pastAuthor.trim() || !pastMonth.trim()) return;
+    setAddingPast(true);
+    setPastMsg(null);
+    try {
+      const res = await fetch("/api/books", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: pastTitle.trim(),
+          author: pastAuthor.trim(),
+          amazon_link: pastLink.trim() || null,
+          is_past_read: true,
+          month_read: pastMonth.trim() + "-01",
+        }),
+      });
+      const data = await res.json();
+      if (data.status === "ok") {
+        setShowAddPast(false);
+        setPastTitle("");
+        setPastAuthor("");
+        setPastLink("");
+        setPastMonth("");
+        setStatusMsg(`"${data.book.title}" added as past read!`);
+        loadBooks();
+      } else {
+        setPastMsg(data.error || "Failed to add past read.");
+      }
+    } catch {
+      setPastMsg("Connection error.");
+    }
+    setAddingPast(false);
   };
 
   const btnClass = "px-4 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110 disabled:opacity-50";
@@ -716,13 +759,25 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
                   </button>
                 </div>
 
-                {/* Suggest button */}
-                <button
-                  onClick={() => { setShowSuggest(true); setSuggestMsg(null); }}
-                  className={`${btnClass} mb-4 !text-xs flex items-center gap-1`}
-                >
-                  ✚ Suggest a Book
-                </button>
+                {/* Wishlist: Suggest a Book button */}
+                {bookView === "wishlist" && (
+                  <button
+                    onClick={() => { setShowSuggest(true); setSuggestMsg(null); }}
+                    className={`${btnClass} mb-4 !text-xs flex items-center gap-1`}
+                  >
+                    ✚ Suggest a Book
+                  </button>
+                )}
+
+                {/* Past Reads: Admin-only Add Past Read button */}
+                {bookView === "past" && isAdmin && (
+                  <button
+                    onClick={() => { setShowAddPast(true); setPastMsg(null); }}
+                    className={`${btnClass} mb-4 !text-xs flex items-center gap-1 !border-green-700 !border-r-green-900 !border-b-green-900 text-green-800`}
+                  >
+                    ✚ Add Past Read
+                  </button>
+                )}
 
                 {/* Book list */}
                 {loading ? (
@@ -811,6 +866,138 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
           inputClass={inputClass}
         />
       )}
+
+      {/* Add Past Read modal */}
+      {showAddPast && (
+        <AddPastModal
+          title={pastTitle}
+          setTitle={setPastTitle}
+          author={pastAuthor}
+          setAuthor={setPastAuthor}
+          month={pastMonth}
+          setMonth={setPastMonth}
+          link={pastLink}
+          setLink={setPastLink}
+          onSubmit={handleAddPast}
+          onClose={() => { setShowAddPast(false); setPastMsg(null); }}
+          adding={addingPast}
+          error={pastMsg}
+          btnClass={btnClass}
+          inputClass={inputClass}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ─── Suggest Book Modal ─── */
+
+/* ─── Add Past Read Modal ─── */
+
+function AddPastModal({
+  title, setTitle,
+  author, setAuthor,
+  month, setMonth,
+  link, setLink,
+  onSubmit, onClose,
+  adding, error,
+  btnClass, inputClass,
+}: {
+  title: string; setTitle: (v: string) => void;
+  author: string; setAuthor: (v: string) => void;
+  month: string; setMonth: (v: string) => void;
+  link: string; setLink: (v: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
+  adding: boolean;
+  error: string | null;
+  btnClass: string;
+  inputClass: string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
+      <div
+        className="w-[420px] max-w-[90vw] shadow-[4px_4px_0px_#00000040]"
+        style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif" }}
+      >
+        {/* Title bar */}
+        <div className="bg-[#000080] flex items-center justify-between px-[3px] py-[3px]">
+          <div className="flex items-center gap-1">
+            <div className="w-[14px] h-[14px] bg-[#c0c0c0] flex items-center justify-center border border-white border-r-black border-b-black text-[10px] leading-none text-black font-bold">📖</div>
+            <span className="text-white text-xs font-bold tracking-wide">Add Past Read</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-[16px] h-[14px] bg-[#c0c0c0] border border-white border-r-black border-b-black flex items-center justify-center text-[9px] text-black font-bold leading-none active:border-black active:border-t-gray-400 active:border-l-gray-400"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="bg-[#c0c0c0] px-4 py-4 border-l-[2px] border-t-[2px] border-white border-r-[2px] border-b-[2px] border-black">
+          <p className="text-[11px] text-gray-700 mb-3">Add a book the club has already read.</p>
+
+          <div className="space-y-3">
+            <div>
+              <label className="text-[11px] text-black block mb-[2px] font-bold">Title *</label>
+              <input
+                type="text" value={title} onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Dune"
+                required
+                className={inputClass}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-black block mb-[2px] font-bold">Author *</label>
+              <input
+                type="text" value={author} onChange={(e) => setAuthor(e.target.value)}
+                placeholder="e.g. Frank Herbert"
+                required
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-black block mb-[2px] font-bold">Month Read *</label>
+              <input
+                type="month" value={month} onChange={(e) => setMonth(e.target.value)}
+                required
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-black block mb-[2px] font-bold">Amazon Link (optional)</label>
+              <input
+                type="url" value={link} onChange={(e) => setLink(e.target.value)}
+                placeholder="https://amazon.de/dp/..."
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-[10px] text-red-700 mt-2">{error}</p>}
+
+          <div className="flex justify-end mt-4 gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={adding}
+              className={btnClass}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={adding || !title.trim() || !author.trim() || !month.trim()}
+              className={btnClass}
+            >
+              {adding ? "⏳" : "Add"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

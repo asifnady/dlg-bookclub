@@ -65,10 +65,10 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createClient();
 
-  // Verify session and get member
+  // Verify session and get member (including is_admin for past-read additions)
   const { data: members } = await supabase
     .from("members")
-    .select("id")
+    .select("id, is_admin")
     .eq("session_token", match[1])
     .gte("session_expires_at", new Date().toISOString())
     .limit(1);
@@ -79,10 +79,16 @@ export async function POST(req: NextRequest) {
 
   const member = members[0];
   const body = await req.json();
-  const { title, author, amazon_link } = body;
+  const { title, author, amazon_link, is_past_read, month_read } = body;
 
   if (!title?.trim() || !author?.trim()) {
     return NextResponse.json({ error: "Title and author are required" }, { status: 400 });
+  }
+
+  // Build insert — only admins can set is_past_read + month_read
+  const isPast = !!is_past_read;
+  if (isPast && !member.is_admin) {
+    return NextResponse.json({ error: "Only admins can add past reads" }, { status: 403 });
   }
 
   const { data, error } = await supabase
@@ -92,6 +98,8 @@ export async function POST(req: NextRequest) {
       author: author.trim(),
       amazon_link: amazon_link?.trim() || null,
       suggested_by: member.id,
+      is_past_read: isPast,
+      month_read: isPast && month_read ? month_read : null,
     })
     .select()
     .single();
