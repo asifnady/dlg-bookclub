@@ -16,7 +16,7 @@
 | **Deploy** | ✅ Done | Vercel deployed, keepalive cron active |
 | **Admin Panel** | ✅ Done | Win95-styled admin: approve/reject registrations, member list with search + remove |
 | **Admin Seeded** | ✅ Done | a.nadeem89@gmail.com inserted in members table as admin (verified=true, is_admin=true) |
-| **Wishlist** | ⏳ Next | Suggest + view books |
+| **Wishlist** | ✅ Done | Suggest + view books, past reads with admin Add Past Read |
 | **Book Poll** | ⏳ | Create, vote, close, announce |
 | **Meeting Poll** | ⏳ | + Google Calendar integration |
 | **Profile & Avatars** | ⏳ | |
@@ -98,12 +98,13 @@
 
 ## ✅ Phase 8 — Wishlist
 
-- [x] `POST /api/books` — suggest a book (title, author, amazon_link)
+- [x] `POST /api/books` — suggest a book (title, author, amazon_link); admin can set is_past_read + month_read
 - [x] `GET /api/books` — list books with `?past=true` filter
 - [x] Wishlist view with sort (newest first)
 - [x] Past reads segmented toggle
-- [x] Suggest a Book Win95 modal dialog
-- [x] Member dashboard now shows books tab with book list
+- [x] Suggest a Book button only on Wishlist tab
+- [x] Admin-only **"Add Past Read"** button on Past Reads tab (Win95 modal with month picker)
+- [x] Member dashboard with proper Win95 Books tab, status bar, and book count
 
 ## ⏳ Phase 9 — Book Poll
 
@@ -149,6 +150,9 @@
 - **Cost:** $0/month (free tiers)
 - **Supabase project:** `ozyvwadyfgqslvrckles.supabase.co`
 - **Movies tab (designed, not built):** Shared feed of member movie/series recommendations. Replaces Profile in bottom tab bar; Profile moves to gear/avatar icon top-right. New tables: `media`, `media_recommendations`. Auto-fetch from TMDB + OMDb. Monthly email digest. Self-serve publishing (no admin approval). RT rating as bonus.
+- **Book lifecycle:** Wishlist → Poll winner → Currently Reading → Past Read (after meeting)
+- **Tiebreaker:** Poll creator breaks ties (not admin)
+- **Past Reads:** Admin-only "Add Past Read" for migrating existing club books (no poll flow needed)
 
 ## Key Files
 

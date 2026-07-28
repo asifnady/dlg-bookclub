@@ -1,7 +1,7 @@
 # DLG Bookclub — Design & Spec
 
 > Compiled from the complete grill session (June 27–29, 2026)
-> Last updated: July 19, 2026
+> Last updated: July 29, 2026
 > Status: ✅ V1 deployed on Vercel
 
 ---
@@ -10,6 +10,7 @@
 
 - **Single-club, single-purpose webapp.** The app IS the bookclub.
 - Members: Asif's existing bookclub circle (~10–30 people).
+- **Book lifecycle:** Wishlist → Poll winner → **Currently Reading** → Past Read (after meeting).
 
 ---
 
@@ -35,7 +36,7 @@
 
 | Role | Who | Capabilities |
 |---|---|---|
-| **Admin** | Asif (only) | Approve registrations, invite/remove members, toggle notification pause, create meeting polls, designate poll creators, generate invite links, see member emails |
+| **Admin** | Asif (only) | Approve registrations, invite/remove members, toggle notification pause, create meeting polls, designate poll creators, generate invite links, see member emails, add past reads (for migration) |
 | **Member** | Everyone else | Suggest books, vote in polls, add quotes, change avatar, view members (names only), pause own notifications |
 | **Editor** | _Future_ | Can add text content to the webapp |
 
@@ -119,9 +120,16 @@ User types email →
 
 ## 7. Book Wishlist
 
-- Any member can suggest a book
+- Any member can suggest a book (Wishlist tab, not Past Reads)
 - **Fields:** Title (required), Author (required), Suggested by (auto-filled), Amazon link (optional)
 - Book covers: **Post-MVP**, auto-fetched from Open Library API
+
+## 7b. Past Reads
+
+- Segmented toggle on Books tab alongside Wishlist
+- Admin-only **"Add Past Read"** button (Win95 modal dialog with Title, Author, Month Read, optional Amazon link)
+- For migrating existing books the club has already read before the app existed
+- Books listed with month they were read
 
 ---
 
@@ -131,8 +139,10 @@ User types email →
 1. **Admin designates a poll creator** — one-time authorization link (valid 7 days or until poll created)
 2. Poll creator picks **5 books from the wishlist**
 3. Poll opens for all members, runs **7 days**, closes **Sunday afternoon**
-4. Winner auto-selected (most votes). **Tie** → poll creator chooses
-5. New cycle begins after the weekend following the meeting
+4. Winner auto-selected (most votes). **Tie** → poll creator chooses (tiebreaker)
+5. Winner marked as **currently reading** on Home Dashboard
+6. After the meeting, book transitions to Past Read
+7. New cycle begins after the weekend following the meeting
 
 ### Voting Rules
 - **Multi-vote** — checkboxes, vote for as many as you want

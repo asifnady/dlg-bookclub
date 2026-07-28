@@ -100,19 +100,22 @@
 
 ---
 
-## Phase 8: Book Wishlist ⏳
+## Phase 8: Book Wishlist ✅
 
 ### 8.1 Suggest a Book ✅
 - Win95 modal dialog: Title, Author, Amazon link (opt)
 - Auto-fill "suggested by" from logged-in user
+- Only visible on Wishlist tab
 
 ### 8.2 Wishlist View ✅
 - List all suggested books on Books tab
 - Sort by most recent (newest first)
 
 ### 8.3 Past Reads View ✅
-- Segmented toggle on Books tab
+- Segmented toggle on Books tab alongside Wishlist
 - Books where `is_past_read = true`
+- Admin-only **"Add Past Read"** button (for migrating existing books)
+- Month read picker in dialog
 
 **Approach:** Built UI + API routes in one session.
 
@@ -163,13 +166,17 @@
 ### 9.3 Auto-Close
 - On-visit logic: if past `closes_at` → close poll, count votes
 - Clear winner → update `polls.winner_id`
-- Tie → flag for admin to decide
+- Tie → **poll creator breaks the tie** (not admin)
 
 ### 9.4 Results
 - Winner highlighted, vote counts per book
 
-### 9.5 Past Book Record
-- Winner → `books.is_past_read = true`, `books.month_read = now()`
+### 9.5 After Poll Closes
+- Winner → **marked as currently reading** (`books.currently_reading = true`)
+- Displayed on Home Dashboard card
+
+### 9.6 After Meeting
+- Winner → `books.is_past_read = true`, `books.month_read = now()`, `books.currently_reading = false`
 
 ---
 
@@ -226,6 +233,7 @@
 ## Phase 13: Home Dashboard ⏳
 
 ### 13.1 Home Tab
+- **Currently reading card** — shows active book (poll winner), with cover, title, author
 - Quote of the week from `quotes` table
 - Active poll alert with countdown
 - Next meeting card
