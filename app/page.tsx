@@ -705,11 +705,11 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
   }, []);
 
   const desktopIcons = [
-    { icon: "💻", label: "My Computer" },
-    { icon: "🌐", label: "Netscape" },
-    { icon: "📞", label: "Dial-Up Internet" },
-    { icon: "🖧", label: "Network Neighbourhood" },
-    { icon: "🎵", label: "Winamp" },
+    { src: "/icons/my_computer.png", label: "My Computer" },
+    { src: "/icons/netscape.png", label: "Netscape" },
+    { src: "/icons/dial_up.png", label: "Dial-Up Internet" },
+    { src: "/icons/network_neighborhood.png", label: "Network Neighbourhood" },
+    { src: "/icons/winamp.png", label: "Winamp" },
   ];
 
   return (
@@ -720,9 +720,9 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
       <div className="flex-1 relative overflow-auto pt-2 pl-2">
         {/* Desktop icons */}
         <div className="absolute top-2 left-2 flex flex-col gap-5 z-10">
-          {desktopIcons.map((di) => (
+          {desktopIcons.map((di: { src: string; label: string }) => (
             <div key={di.label} className="flex flex-col items-center gap-[2px] w-[72px]">
-              <div className="text-3xl leading-none">{di.icon}</div>
+              <img src={di.src} alt={di.label} className="w-10 h-10 image-rendering-pixelated" draggable={false} />
               <div className="bg-[#000080] text-white text-[10px] px-[6px] py-[1px] text-center leading-tight font-bold whitespace-nowrap">
                 {di.label}
               </div>
