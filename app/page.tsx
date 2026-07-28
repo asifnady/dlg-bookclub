@@ -872,7 +872,7 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
       {/* Windows 95 Taskbar */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#c0c0c0] border-t-2 border-white flex items-center h-[34px] px-[2px] gap-1 z-30">
         <button className="flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-[3px] py-[2px] font-bold text-sm text-black active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110">
-          <img src="/icons/start_flag.png" alt="" className="w-[14px] h-[14px] image-rendering-pixelated" />
+          <img src="/icons/start_flag.png" alt="" className="w-[18px] h-[18px] image-rendering-pixelated" />
           <span className="text-xs tracking-wide font-bold">Start</span>
         </button>
         <div className="border-l border-gray-400 h-[22px] mx-1" />

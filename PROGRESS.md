@@ -12,7 +12,7 @@
 | **Foundation** | ✅ Done | Repo, Next.js, Supabase project, DB schema |
 | **Auth** | ✅ Done | Win95 boot-up login, email check, auto-login, callback |
 | **Registration** | ✅ Done | Self-registration form, pending_registrations, admin AgentMail notification |
-| **UI Redesign** | ✅ Done | Retro Windows 95 full boot experience (BIOS → DOS → Win95 → login) |
+| **UI Redesign** | ✅ Done | Retro Windows 95 full boot experience (BIOS → DOS → Win95 → login + desktop + taskbar) |
 | **Deploy** | ✅ Done | Vercel deployed, keepalive cron active |
 | **Admin Panel** | ✅ Done | Win95-styled admin: approve/reject registrations, member list with search + remove |
 | **Admin Seeded** | ✅ Done | a.nadeem89@gmail.com inserted in members table as admin (verified=true, is_admin=true) |
@@ -96,7 +96,9 @@
 
 ---
 
-## ✅ Phase 8 — Wishlist
+## ✅ Phase 8 — Book Wishlist & Win95 Desktop Polish
+
+### Phase 8a — Wishlist ✅
 
 - [x] `POST /api/books` — suggest a book (title, author, amazon_link); admin can set is_past_read + month_read
 - [x] `GET /api/books` — list books with `?past=true` filter
@@ -105,6 +107,14 @@
 - [x] Suggest a Book button only on Wishlist tab
 - [x] Admin-only **"Add Past Read"** button on Past Reads tab (Win95 modal with month picker)
 - [x] Member dashboard with proper Win95 Books tab, status bar, and book count
+
+### Phase 8b — Win95 Desktop Polish ✅
+
+- [x] Full Win95 desktop behind dashboard (teal background, desktop icons)
+- [x] Classic desktop icons: My Computer, Netscape, Dial-Up Internet, Network Neighbourhood, Winamp
+- [x] Real icon PNGs (from trapd00r/win95-winxp_icons + iconarchive) instead of emojis
+- [x] Proper Win95 taskbar: Start button with Windows flag icon, speaker icon, live clock
+- [x] Transparent icon backgrounds (flood-filled to remove .ico background colors)
 
 ## ⏳ Phase 9 — Book Poll
 
