@@ -1,200 +1,190 @@
 # DLG Bookclub — Database Schema
 
-**Supabase Project:** `ozyvwadyfgqslvrckles.supabase.co`
-
-> Run `supabase-schema.sql` first, then `schema-migration.sql` in Supabase SQL Editor.
+> Supabase project: `ozyvwadyfgqslvrckles.supabase.co`
+> Last updated: July 19, 2026
 
 ---
 
 ## Tables
 
-### 1. `members`
+### members
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK, default uuid_generate_v4() |
+| email | TEXT | UNIQUE, NOT NULL |
+| name | TEXT | Display name |
+| first_name | TEXT | From registration |
+| last_name | TEXT | From registration |
+| city | TEXT | From registration |
+| verified | BOOLEAN | Default false. Set true after first magic link login |
+| session_token | TEXT | Auto-login token, regenerated each session |
+| session_expires_at | TIMESTAMPTZ | 30-day expiry |
+| avatar | TEXT | Slug for selected character, default 'default' |
+| is_admin | BOOLEAN | Default false |
+| notifications_paused | BOOLEAN | Default false |
+| created_at | TIMESTAMPTZ | Default now() |
 
-Club members (admin-seeded + approved registrations).
+### pending_registrations
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| email | TEXT | UNIQUE |
+| first_name | TEXT | |
+| last_name | TEXT | |
+| city | TEXT | |
+| status | TEXT | 'pending', 'approved', 'rejected' |
+| created_at | TIMESTAMP | |
 
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `email` | TEXT | — | UNIQUE, NOT NULL |
-| `name` | TEXT | — | Display name |
-| `first_name` | TEXT | — | Added by migration |
-| `last_name` | TEXT | — | Added by migration |
-| `city` | TEXT | — | Added by migration |
-| `avatar` | TEXT | `'default'` | |
-| `verified` | BOOLEAN | `false` | Added by migration; true after magic link verified |
-| `is_admin` | BOOLEAN | `false` | |
-| `session_token` | TEXT | — | Added by migration; UUID for custom session |
-| `session_expires_at` | TIMESTAMPTZ | — | Added by migration; 30 days from login |
-| `notifications_paused` | BOOLEAN | `false` | |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
+### invites
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| email | TEXT | UNIQUE |
+| token | TEXT | Null until shareable link used |
+| method | TEXT | 'email' or 'tokenized_link' |
+| status | TEXT | 'pending', 'accepted', 'expired' |
+| invited_by | UUID | FK → members.id |
+| expires_at | TIMESTAMP | Null for direct email, 7 days for tokens |
+| created_at | TIMESTAMP | |
 
-### 2. `pending_registrations`
+### books
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| title | TEXT | NOT NULL |
+| author | TEXT | NOT NULL |
+| suggested_by | UUID | FK → members.id |
+| amazon_link | TEXT | Optional |
+| is_past_read | BOOLEAN | Default false |
+| month_read | DATE | Null until read |
+| created_at | TIMESTAMPTZ | Default now() |
+| Index | | idx_books_suggested_by |
 
-Created by migration. Holds new sign-ups awaiting admin approval.
+### polls
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| type | TEXT | CHECK ('book', 'meeting') |
+| creator_id | UUID | FK → members.id |
+| status | TEXT | Default 'open', CHECK ('open', 'closed') |
+| closes_at | TIMESTAMPTZ | NOT NULL |
+| winner_id | UUID | FK → books.id, nullable |
+| created_at | TIMESTAMPTZ | Default now() |
+| Index | | idx_polls_status, idx_polls_type |
 
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `email` | TEXT | — | UNIQUE, NOT NULL |
-| `first_name` | TEXT | — | NOT NULL |
-| `last_name` | TEXT | — | NOT NULL |
-| `city` | TEXT | — | NOT NULL |
-| `status` | TEXT | `'pending'` | CHECK: `pending`, `approved`, `rejected` |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
+### poll_options
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| poll_id | UUID | FK → polls.id, NOT NULL, CASCADE delete |
+| book_id | UUID | FK → books.id, CASCADE delete |
 
-### 3. `books`
+### votes
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| poll_id | UUID | FK → polls.id, NOT NULL, CASCADE delete |
+| member_id | UUID | FK → members.id, NOT NULL, CASCADE delete |
+| poll_option_id | UUID | FK → poll_options.id, NOT NULL, CASCADE delete |
+| created_at | TIMESTAMPTZ | Default now() |
+| UNIQUE | | (poll_id, member_id, poll_option_id) |
+| Index | | idx_votes_poll_id, idx_votes_member_id |
 
-Books suggested by members.
+### meetings
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| book_id | UUID | FK → books.id |
+| date | DATE | NOT NULL |
+| time | TIME | NOT NULL |
+| venue_name | TEXT | Fictional place name |
+| google_meet_link | TEXT | |
+| google_calendar_event_id | TEXT | |
+| created_at | TIMESTAMPTZ | Default now() |
 
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `title` | TEXT | — | NOT NULL |
-| `author` | TEXT | — | NOT NULL |
-| `suggested_by` | UUID | — | FK → `members(id)` ON DELETE SET NULL |
-| `amazon_link` | TEXT | — | |
-| `is_past_read` | BOOLEAN | `false` | |
-| `month_read` | DATE | — | When the club read it |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
+### invite_tokens
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| token | TEXT | UNIQUE, NOT NULL |
+| created_by | UUID | FK → members.id, CASCADE delete |
+| expires_at | TIMESTAMPTZ | NOT NULL, 7 days |
+| used | BOOLEAN | Default false |
+| created_at | TIMESTAMPTZ | Default now() |
 
-### 4. `polls`
+### poll_creator_tokens
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| member_id | UUID | FK → members.id, NOT NULL, CASCADE delete |
+| token | TEXT | UNIQUE, NOT NULL |
+| expires_at | TIMESTAMPTZ | NOT NULL, 7 days |
+| used | BOOLEAN | Default false |
+| created_at | TIMESTAMPTZ | Default now() |
 
-Book or meeting polls.
+### quotes
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| book_id | UUID | FK → books.id |
+| text | TEXT | NOT NULL |
+| submitted_by | UUID | FK → members.id (null = system-curated) |
+| active | BOOLEAN | Default false, currently displayed? |
+| created_at | TIMESTAMPTZ | Default now() |
+| Index | | idx_quotes_active |
 
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `type` | TEXT | — | CHECK: `book` or `meeting` |
-| `creator_id` | UUID | — | FK → `members(id)` ON DELETE SET NULL |
-| `status` | TEXT | `'open'` | CHECK: `open` or `closed` |
-| `closes_at` | TIMESTAMPTZ | — | NOT NULL |
-| `winner_id` | UUID | — | FK → `books(id)` ON DELETE SET NULL |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
+### media
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK, default uuid_generate_v4() |
+| title | TEXT | NOT NULL |
+| type | TEXT | NOT NULL, CHECK ('movie', 'series') |
+| year | INTEGER | |
+| poster_url | TEXT | Auto-fetched from TMDB |
+| genre | TEXT | Auto-fetched from TMDB |
+| imdb_rating | DECIMAL(3,1) | Auto-fetched from OMDb |
+| rt_rating | INTEGER | Nullable (bonus), 0-100 |
+| seasons_count | INTEGER | Nullable, for series |
+| tmdb_id | TEXT | NOT NULL, UNIQUE, for lookup dedup |
+| created_at | TIMESTAMPTZ | Default now() |
 
-### 5. `poll_options`
+### media_recommendations
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK, default uuid_generate_v4() |
+| member_id | UUID | FK → members.id, NOT NULL, CASCADE delete |
+| media_id | UUID | FK → media.id, NOT NULL, CASCADE delete |
+| loved_this_because | TEXT | NOT NULL, member's personal review |
+| created_at | TIMESTAMPTZ | Default now() |
+| UNIQUE | | (member_id, media_id) — one rec per member per title |
+| Index | | idx_media_recs_member, idx_media_recs_media |
 
-Options/choices for a poll.
+---
 
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `poll_id` | UUID | — | FK → `polls(id)` ON DELETE CASCADE, NOT NULL |
-| `book_id` | UUID | — | FK → `books(id)` ON DELETE CASCADE |
+## Migrations
 
-### 6. `votes`
+### Initial schema
+`schema-to-run.sql` — creates all tables listed above except `pending_registrations`
 
-Member votes on poll options.
+### Runtime additions to `members` table
+Columns added after initial schema run:
+- `verified` BOOLEAN default false
+- `first_name` TEXT
+- `last_name` TEXT
+- `city` TEXT
+- `session_token` TEXT
+- `session_expires_at` TIMESTAMPTZ
 
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `poll_id` | UUID | — | FK → `polls(id)` ON DELETE CASCADE, NOT NULL |
-| `member_id` | UUID | — | FK → `members(id)` ON DELETE CASCADE, NOT NULL |
-| `poll_option_id` | UUID | — | FK → `poll_options(id)` ON DELETE CASCADE, NOT NULL |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
-| | | | UNIQUE (`poll_id`, `member_id`, `poll_option_id`) |
-
-### 7. `meetings`
-
-Scheduled/booked meetings.
-
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `book_id` | UUID | — | FK → `books(id)` ON DELETE SET NULL |
-| `date` | DATE | — | NOT NULL |
-| `time` | TIME | — | NOT NULL |
-| `venue_name` | TEXT | — | |
-| `google_meet_link` | TEXT | — | |
-| `google_calendar_event_id` | TEXT | — | |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
-
-### 8. `invite_tokens`
-
-Invite tokens for member invitations.
-
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `token` | TEXT | — | UNIQUE, NOT NULL |
-| `created_by` | UUID | — | FK → `members(id)` ON DELETE CASCADE |
-| `expires_at` | TIMESTAMPTZ | — | NOT NULL |
-| `used` | BOOLEAN | `false` | |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
-
-### 9. `poll_creator_tokens`
-
-Tokens for poll creator validation.
-
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `member_id` | UUID | — | FK → `members(id)` ON DELETE CASCADE, NOT NULL |
-| `token` | TEXT | — | UNIQUE, NOT NULL |
-| `expires_at` | TIMESTAMPTZ | — | NOT NULL |
-| `used` | BOOLEAN | `false` | |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
-
-### 10. `quotes`
-
-Quote of the week entries.
-
-| Column | Type | Default | Notes |
-|--------|------|---------|-------|
-| `id` | UUID | `uuid_generate_v4()` | PK |
-| `book_id` | UUID | — | FK → `books(id)` ON DELETE SET NULL |
-| `text` | TEXT | — | NOT NULL |
-| `submitted_by` | UUID | — | FK → `members(id)` ON DELETE SET NULL |
-| `active` | BOOLEAN | `false` | |
-| `created_at` | TIMESTAMPTZ | `NOW()` | |
-
-## Indexes
-
+### `pending_registrations` table
+Created separately after schema migration:
 ```sql
-CREATE INDEX idx_books_suggested_by ON books(suggested_by);
-CREATE INDEX idx_polls_status ON polls(status);
-CREATE INDEX idx_polls_type ON polls(type);
-CREATE INDEX idx_votes_poll_id ON votes(poll_id);
-CREATE INDEX idx_votes_member_id ON votes(member_id);
-CREATE INDEX idx_quotes_active ON quotes(active);
+CREATE TABLE pending_registrations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT UNIQUE NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  city TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 ```
-
-## RLS Policies
-
-```sql
--- Applied after migration. Run these in Supabase SQL Editor:
-
--- Allow anon to insert into pending_registrations (registration form)
-CREATE POLICY "anon_insert_pending_registrations" 
-ON pending_registrations 
-FOR INSERT 
-TO anon 
-WITH CHECK (true);
-
--- Allow anon to read pending_registrations (admin panel list)
-CREATE POLICY "anon_select_pending_registrations" 
-ON pending_registrations 
-FOR SELECT 
-TO anon 
-USING (true);
-
--- Allow anon to update pending_registrations (admin approve/reject)
-CREATE POLICY "anon_update_pending_registrations" 
-ON pending_registrations 
-FOR UPDATE 
-TO anon 
-USING (true);
-
--- Allow anon to insert into members (admin approval creates member)
-CREATE POLICY "anon_insert_members" 
-ON members 
-FOR INSERT 
-TO anon 
-WITH CHECK (true);
-```
-
-## Migration Order
-
-1. Run `supabase-schema.sql` — creates base tables (members, books, polls, etc.)
-2. Run `schema-migration.sql` — adds columns to members, creates `pending_registrations`
-3. Run the RLS policies above

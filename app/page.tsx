@@ -567,37 +567,348 @@ function Windows95Taskbar() {
   );
 }
 
+/* ─── Types ─── */
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  amazon_link: string | null;
+  is_past_read: boolean;
+  month_read: string | null;
+  suggested_by: string;
+  created_at: string;
+  members: {
+    name: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    avatar: string | null;
+  };
+}
+
+type DashboardTab = "books";
+type BookView = "wishlist" | "past";
+
 /* ─── Member Dashboard ─── */
 
 function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; isAdmin?: boolean; onLogout: () => void }) {
+  const [tab, setTab] = useState<DashboardTab>("books");
+  const [bookView, setBookView] = useState<BookView>("wishlist");
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showSuggest, setShowSuggest] = useState(false);
+  const [suggestTitle, setSuggestTitle] = useState("");
+  const [suggestAuthor, setSuggestAuthor] = useState("");
+  const [suggestLink, setSuggestLink] = useState("");
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestMsg, setSuggestMsg] = useState<string | null>(null);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+  const loadBooks = useCallback(async () => {
+    setLoading(true);
+    try {
+      const isPast = bookView === "past";
+      const res = await fetch(`/api/books?past=${isPast}`);
+      const data = await res.json();
+      setBooks(data.books || []);
+    } catch {
+      setStatusMsg("Failed to load books.");
+    }
+    setLoading(false);
+  }, [bookView]);
+
+  useEffect(() => { loadBooks(); }, [loadBooks]);
+
+  const handleSuggest = async () => {
+    if (!suggestTitle.trim() || !suggestAuthor.trim()) return;
+    setSuggesting(true);
+    setSuggestMsg(null);
+    try {
+      const res = await fetch("/api/books", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: suggestTitle.trim(),
+          author: suggestAuthor.trim(),
+          amazon_link: suggestLink.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (data.status === "ok") {
+        setShowSuggest(false);
+        setSuggestTitle("");
+        setSuggestAuthor("");
+        setSuggestLink("");
+        setStatusMsg(`"${data.book.title}" suggested!`);
+        loadBooks();
+      } else {
+        setSuggestMsg(data.error || "Failed to suggest book.");
+      }
+    } catch {
+      setSuggestMsg("Connection error.");
+    }
+    setSuggesting(false);
+  };
+
+  const btnClass = "px-4 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110 disabled:opacity-50";
+  const inputClass = "w-full border-2 border-black border-t-gray-400 border-l-gray-400 bg-white px-2 py-1 text-sm text-black outline-none focus:border-[#000080]";
+
   return (
-    <div className="min-h-screen bg-[#008080] font-mono flex flex-col items-center justify-center p-6">
-      <div className="bg-[#c0c0c0] border-2 border-white border-r-black border-b-black p-8 max-w-md w-full shadow-[4px_4px_0px_#00000040]"
-        style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif" }}>
-        <div className="bg-[#000080] text-white px-2 py-1 text-sm font-bold mb-4 flex justify-between items-center">
-          <span>📚 DLG Bookclub</span>
-          {isAdmin && <span className="text-[9px] bg-yellow-300 text-black px-1.5 py-[1px]">ADMIN</span>}
-        </div>
-        <p className="text-lg font-bold text-black mb-2">Welcome, {userName}! 👋</p>
-        <p className="text-[11px] text-gray-700 mb-6">The bookclub dashboard is coming soon. Stay tuned!</p>
-        <div className="flex gap-2">
-          {isAdmin && (
-            <a
-              href="/admin"
-              className="px-5 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110 inline-block"
+    <div className="min-h-screen bg-[#008080] font-mono select-none overflow-auto"
+      style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif" }}>
+      <div className="max-w-4xl mx-auto p-4 py-6 min-h-screen flex flex-col">
+        {/* Title bar */}
+        <div className="bg-[#000080] flex items-center justify-between px-[3px] py-[3px]">
+          <div className="flex items-center gap-1">
+            <span className="text-white text-xs font-bold tracking-wide">📚 DLG Bookclub</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isAdmin && <span className="text-[9px] bg-yellow-300 text-black px-1.5 py-[1px] font-bold">ADMIN</span>}
+            <button
+              onClick={async () => {
+                await fetch("/api/logout", { method: "POST" });
+                onLogout();
+              }}
+              className="text-white text-[10px] underline hover:text-blue-200"
             >
-              🛠️ Admin Panel
-            </a>
+              Log Out
+            </button>
+          </div>
+        </div>
+
+        {/* Window body */}
+        <div className="bg-[#c0c0c0] border-l-[2px] border-t-[2px] border-white border-r-[2px] border-b-[2px] border-black flex-1 flex flex-col">
+          {/* Tab bar */}
+          <div className="flex border-b border-gray-400">
+            <button
+              onClick={() => setTab("books")}
+              className={`px-4 py-2 text-xs font-bold border-r border-gray-400 ${tab === "books" ? "bg-[#c0c0c0] -mb-[1px] border-b-2 border-b-[#c0c0c0]" : "bg-gray-300 hover:bg-gray-200"}`}
+            >
+              📚 Books
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-4 flex-1 overflow-auto">
+            {/* Status message */}
+            {statusMsg && (
+              <div className="mb-3 px-3 py-2 bg-[#FFFFCC] border border-gray-400 text-xs text-black flex justify-between items-center">
+                <span>{statusMsg}</span>
+                <button onClick={() => setStatusMsg(null)} className="text-gray-500 ml-2">✕</button>
+              </div>
+            )}
+
+            {tab === "books" && (
+              <>
+                {/* Segmented toggle */}
+                <div className="flex mb-4">
+                  <button
+                    onClick={() => setBookView("wishlist")}
+                    className={`px-4 py-1.5 text-xs font-bold border-2 border-white border-r-black border-b-black ${bookView === "wishlist" ? "bg-[#000080] text-white" : "bg-[#c0c0c0] text-black hover:brightness-110"}`}
+                  >
+                    Wishlist
+                  </button>
+                  <button
+                    onClick={() => setBookView("past")}
+                    className={`px-4 py-1.5 text-xs font-bold border-2 border-white border-r-black border-b-black -ml-[2px] ${bookView === "past" ? "bg-[#000080] text-white" : "bg-[#c0c0c0] text-black hover:brightness-110"}`}
+                  >
+                    Past Reads
+                  </button>
+                </div>
+
+                {/* Suggest button */}
+                <button
+                  onClick={() => { setShowSuggest(true); setSuggestMsg(null); }}
+                  className={`${btnClass} mb-4 !text-xs flex items-center gap-1`}
+                >
+                  ✚ Suggest a Book
+                </button>
+
+                {/* Book list */}
+                {loading ? (
+                  <div className="flex flex-col items-center py-12">
+                    <div className="text-4xl mb-3 animate-pulse">⏳</div>
+                    <p className="text-sm text-black">Loading...</p>
+                  </div>
+                ) : books.length === 0 ? (
+                  <div className="flex flex-col items-center py-12">
+                    <div className="text-5xl mb-3">{bookView === "wishlist" ? "📭" : "📖"}</div>
+                    <p className="text-sm font-bold text-black">
+                      {bookView === "wishlist" ? "No books suggested yet!" : "No past reads yet."}
+                    </p>
+                    <p className="text-[11px] text-gray-700 mt-1">
+                      {bookView === "wishlist" ? "Be the first to suggest a book. 📝" : "Past reads will appear here once the first book is read."}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {books.map((book) => {
+                      const suggester = book.members?.name || `${book.members?.first_name || ""} ${book.members?.last_name || ""}`.trim() || "Unknown";
+                      return (
+                        <div key={book.id} className="border-2 border-gray-400 border-t-white border-l-white bg-white p-3">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-bold text-black">{book.title}</p>
+                              <p className="text-[11px] text-gray-600">by {book.author}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] text-gray-500">Suggested by {suggester}</span>
+                                <span className="text-[10px] text-gray-400">·</span>
+                                <span className="text-[10px] text-gray-400">{new Date(book.created_at).toLocaleDateString()}</span>
+                              </div>
+                              {book.month_read && (
+                                <span className="text-[10px] text-green-700 mt-1 inline-block">✓ Read {new Date(book.month_read).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</span>
+                              )}
+                            </div>
+                            {book.amazon_link && (
+                              <a
+                                href={book.amazon_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] text-[#000080] underline hover:text-[#0000FF] flex-shrink-0 mt-1"
+                              >
+                                Amazon ↗
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Status bar */}
+        <div className="bg-[#c0c0c0] border-l-[2px] border-t-[2px] border-white border-r-[2px] border-b-[2px] border-black px-[3px] py-[2px] flex items-center -mt-[2px]">
+          <div className="flex items-center gap-1">
+            <div className="w-[12px] h-[12px] bg-[#008080] flex items-center justify-center text-white text-[6px] font-bold border border-white border-r-black border-b-black">B</div>
+            <span className="text-[10px] text-black">Welcome, {userName}</span>
+          </div>
+          <div className="flex-1" />
+          {isAdmin && (
+            <a href="/admin" className="text-[10px] text-[#000080] underline hover:text-[#0000FF] mr-2">Admin Panel</a>
           )}
+          <span className="text-[10px] text-black">{bookView === "wishlist" ? books.length + " suggestions" : books.length + " read"}</span>
+        </div>
+      </div>
+
+      {/* Suggest a Book modal */}
+      {showSuggest && (
+        <SuggestBookModal
+          title={suggestTitle}
+          setTitle={setSuggestTitle}
+          author={suggestAuthor}
+          setAuthor={setSuggestAuthor}
+          link={suggestLink}
+          setLink={setSuggestLink}
+          onSubmit={handleSuggest}
+          onClose={() => { setShowSuggest(false); setSuggestMsg(null); }}
+          suggesting={suggesting}
+          error={suggestMsg}
+          btnClass={btnClass}
+          inputClass={inputClass}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ─── Suggest Book Modal ─── */
+
+function SuggestBookModal({
+  title, setTitle,
+  author, setAuthor,
+  link, setLink,
+  onSubmit, onClose,
+  suggesting, error,
+  btnClass, inputClass,
+}: {
+  title: string; setTitle: (v: string) => void;
+  author: string; setAuthor: (v: string) => void;
+  link: string; setLink: (v: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
+  suggesting: boolean;
+  error: string | null;
+  btnClass: string;
+  inputClass: string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
+      <div
+        className="w-[420px] max-w-[90vw] shadow-[4px_4px_0px_#00000040]"
+        style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif" }}
+      >
+        {/* Title bar */}
+        <div className="bg-[#000080] flex items-center justify-between px-[3px] py-[3px]">
+          <div className="flex items-center gap-1">
+            <div className="w-[14px] h-[14px] bg-[#c0c0c0] flex items-center justify-center border border-white border-r-black border-b-black text-[10px] leading-none text-black font-bold">📝</div>
+            <span className="text-white text-xs font-bold tracking-wide">Suggest a Book</span>
+          </div>
           <button
-            onClick={async () => {
-              await fetch("/api/logout", { method: "POST" });
-              onLogout();
-            }}
-            className="px-5 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400"
+            onClick={onClose}
+            className="w-[16px] h-[14px] bg-[#c0c0c0] border border-white border-r-black border-b-black flex items-center justify-center text-[9px] text-black font-bold leading-none active:border-black active:border-t-gray-400 active:border-l-gray-400"
           >
-            Log Out
+            ✕
           </button>
+        </div>
+
+        {/* Body */}
+        <div className="bg-[#c0c0c0] px-4 py-4 border-l-[2px] border-t-[2px] border-white border-r-[2px] border-b-[2px] border-black">
+          <p className="text-[11px] text-gray-700 mb-3">Recommend a book for the club to read.</p>
+
+          <div className="space-y-3">
+            <div>
+              <label className="text-[11px] text-black block mb-[2px] font-bold">Title *</label>
+              <input
+                type="text" value={title} onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Dune"
+                required
+                className={inputClass}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-black block mb-[2px] font-bold">Author *</label>
+              <input
+                type="text" value={author} onChange={(e) => setAuthor(e.target.value)}
+                placeholder="e.g. Frank Herbert"
+                required
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-black block mb-[2px] font-bold">Amazon Link (optional)</label>
+              <input
+                type="url" value={link} onChange={(e) => setLink(e.target.value)}
+                placeholder="https://amazon.de/dp/..."
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-[10px] text-red-700 mt-2">{error}</p>}
+
+          <div className="flex justify-end mt-4 gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={suggesting}
+              className={btnClass}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={suggesting || !title.trim() || !author.trim()}
+              className={btnClass}
+            >
+              {suggesting ? "⏳" : "Suggest"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
