@@ -696,156 +696,194 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
   const btnClass = "px-4 py-[3px] text-sm bg-[#c0c0c0] border-2 border-white border-r-black border-b-black text-black font-bold active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110 disabled:opacity-50";
   const inputClass = "w-full border-2 border-black border-t-gray-400 border-l-gray-400 bg-white px-2 py-1 text-sm text-black outline-none focus:border-[#000080]";
 
+  const [time, setTime] = useState("");
+  useEffect(() => {
+    const update = () => setTime(new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }));
+    update();
+    const ci = setInterval(update, 30000);
+    return () => clearInterval(ci);
+  }, []);
+
+  const desktopIcons = [
+    { icon: "💻", label: "My Computer" },
+    { icon: "🌐", label: "Netscape" },
+    { icon: "📞", label: "Dial-Up Internet" },
+    { icon: "🖧", label: "Network Neighbourhood" },
+    { icon: "🎵", label: "Winamp" },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#008080] font-mono select-none overflow-auto"
+    <div className="min-h-screen bg-[#008080] font-mono select-none overflow-hidden flex flex-col"
       style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif" }}>
-      <div className="max-w-4xl mx-auto p-4 py-6 min-h-screen flex flex-col">
-        {/* Title bar */}
-        <div className="bg-[#000080] flex items-center justify-between px-[3px] py-[3px]">
-          <div className="flex items-center gap-1">
-            <span className="text-white text-xs font-bold tracking-wide">📚 DLG Bookclub</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {isAdmin && <span className="text-[9px] bg-yellow-300 text-black px-1.5 py-[1px] font-bold">ADMIN</span>}
-            <button
-              onClick={async () => {
-                await fetch("/api/logout", { method: "POST" });
-                onLogout();
-              }}
-              className="text-white text-[10px] underline hover:text-blue-200"
-            >
-              Log Out
-            </button>
-          </div>
+
+      {/* Desktop area */}
+      <div className="flex-1 relative overflow-auto pt-2 pl-2">
+        {/* Desktop icons */}
+        <div className="absolute top-2 left-2 flex flex-col gap-5 z-10">
+          {desktopIcons.map((di) => (
+            <div key={di.label} className="flex flex-col items-center gap-[2px] w-[72px]">
+              <div className="text-3xl leading-none">{di.icon}</div>
+              <div className="bg-[#000080] text-white text-[10px] px-[6px] py-[1px] text-center leading-tight font-bold whitespace-nowrap">
+                {di.label}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Window body */}
-        <div className="bg-[#c0c0c0] border-l-[2px] border-t-[2px] border-white border-r-[2px] border-b-[2px] border-black flex-1 flex flex-col">
-          {/* Tab bar */}
-          <div className="flex border-b border-gray-400">
-            <button
-              onClick={() => setTab("books")}
-              className={`px-4 py-2 text-xs font-bold border-r border-gray-400 ${tab === "books" ? "bg-[#c0c0c0] -mb-[1px] border-b-2 border-b-[#c0c0c0]" : "bg-gray-300 hover:bg-gray-200"}`}
-            >
-              📚 Books
-            </button>
+        {/* App window - positioned to the right of icons */}
+        <div className="ml-20 mr-4 mb-2 min-h-[200px] max-h-[calc(100vh-70px)] flex flex-col shadow-[4px_4px_0px_#00000040]">
+          {/* Title bar */}
+          <div className="bg-[#000080] flex items-center justify-between px-[3px] py-[3px]">
+            <div className="flex items-center gap-1">
+              <span className="text-white text-xs font-bold tracking-wide">📚 DLG Bookclub</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {isAdmin && <span className="text-[9px] bg-yellow-300 text-black px-1.5 py-[1px] font-bold">ADMIN</span>}
+              <button
+                onClick={async () => {
+                  await fetch("/api/logout", { method: "POST" });
+                  onLogout();
+                }}
+                className="text-white text-[10px] underline hover:text-blue-200"
+              >
+                Log Out
+              </button>
+            </div>
           </div>
 
-          {/* Content */}
-          <div className="p-4 flex-1 overflow-auto">
-            {/* Status message */}
-            {statusMsg && (
-              <div className="mb-3 px-3 py-2 bg-[#FFFFCC] border border-gray-400 text-xs text-black flex justify-between items-center">
-                <span>{statusMsg}</span>
-                <button onClick={() => setStatusMsg(null)} className="text-gray-500 ml-2">✕</button>
-              </div>
-            )}
+          {/* Window body */}
+          <div className="bg-[#c0c0c0] border-l-[2px] border-t-[2px] border-white border-r-[2px] border-b-[2px] border-black flex-1 flex flex-col overflow-hidden">
+            {/* Tab bar */}
+            <div className="flex border-b border-gray-400">
+              <button
+                onClick={() => setTab("books")}
+                className={`px-4 py-2 text-xs font-bold border-r border-gray-400 ${tab === "books" ? "bg-[#c0c0c0] -mb-[1px] border-b-2 border-b-[#c0c0c0]" : "bg-gray-300 hover:bg-gray-200"}`}
+              >
+                📚 Books
+              </button>
+            </div>
 
-            {tab === "books" && (
-              <>
-                {/* Segmented toggle */}
-                <div className="flex mb-4">
-                  <button
-                    onClick={() => setBookView("wishlist")}
-                    className={`px-4 py-1.5 text-xs font-bold border-2 border-white border-r-black border-b-black ${bookView === "wishlist" ? "bg-[#000080] text-white" : "bg-[#c0c0c0] text-black hover:brightness-110"}`}
-                  >
-                    Wishlist
-                  </button>
-                  <button
-                    onClick={() => setBookView("past")}
-                    className={`px-4 py-1.5 text-xs font-bold border-2 border-white border-r-black border-b-black -ml-[2px] ${bookView === "past" ? "bg-[#000080] text-white" : "bg-[#c0c0c0] text-black hover:brightness-110"}`}
-                  >
-                    Past Reads
-                  </button>
+            {/* Content */}
+            <div className="p-4 flex-1 overflow-auto">
+              {/* Status message */}
+              {statusMsg && (
+                <div className="mb-3 px-3 py-2 bg-[#FFFFCC] border border-gray-400 text-xs text-black flex justify-between items-center">
+                  <span>{statusMsg}</span>
+                  <button onClick={() => setStatusMsg(null)} className="text-gray-500 ml-2">✕</button>
                 </div>
+              )}
 
-                {/* Wishlist: Suggest a Book button */}
-                {bookView === "wishlist" && (
-                  <button
-                    onClick={() => { setShowSuggest(true); setSuggestMsg(null); }}
-                    className={`${btnClass} mb-4 !text-xs flex items-center gap-1`}
-                  >
-                    ✚ Suggest a Book
-                  </button>
-                )}
-
-                {/* Past Reads: Admin-only Add Past Read button */}
-                {bookView === "past" && isAdmin && (
-                  <button
-                    onClick={() => { setShowAddPast(true); setPastMsg(null); }}
-                    className={`${btnClass} mb-4 !text-xs flex items-center gap-1 !border-green-700 !border-r-green-900 !border-b-green-900 text-green-800`}
-                  >
-                    ✚ Add Past Read
-                  </button>
-                )}
-
-                {/* Book list */}
-                {loading ? (
-                  <div className="flex flex-col items-center py-12">
-                    <div className="text-4xl mb-3 animate-pulse">⏳</div>
-                    <p className="text-sm text-black">Loading...</p>
+              {tab === "books" && (
+                <>
+                  {/* Segmented toggle */}
+                  <div className="flex mb-4">
+                    <button
+                      onClick={() => setBookView("wishlist")}
+                      className={`px-4 py-1.5 text-xs font-bold border-2 border-white border-r-black border-b-black ${bookView === "wishlist" ? "bg-[#000080] text-white" : "bg-[#c0c0c0] text-black hover:brightness-110"}`}
+                    >
+                      Wishlist
+                    </button>
+                    <button
+                      onClick={() => setBookView("past")}
+                      className={`px-4 py-1.5 text-xs font-bold border-2 border-white border-r-black border-b-black -ml-[2px] ${bookView === "past" ? "bg-[#000080] text-white" : "bg-[#c0c0c0] text-black hover:brightness-110"}`}
+                    >
+                      Past Reads
+                    </button>
                   </div>
-                ) : books.length === 0 ? (
-                  <div className="flex flex-col items-center py-12">
-                    <div className="text-5xl mb-3">{bookView === "wishlist" ? "📭" : "📖"}</div>
-                    <p className="text-sm font-bold text-black">
-                      {bookView === "wishlist" ? "No books suggested yet!" : "No past reads yet."}
-                    </p>
-                    <p className="text-[11px] text-gray-700 mt-1">
-                      {bookView === "wishlist" ? "Be the first to suggest a book. 📝" : "Past reads will appear here once the first book is read."}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {books.map((book) => {
-                      const suggester = book.members?.name || `${book.members?.first_name || ""} ${book.members?.last_name || ""}`.trim() || "Unknown";
-                      return (
-                        <div key={book.id} className="border-2 border-gray-400 border-t-white border-l-white bg-white p-3">
-                          <div className="flex justify-between items-start gap-3">
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-bold text-black">{book.title}</p>
-                              <p className="text-[11px] text-gray-600">by {book.author}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[10px] text-gray-500">Suggested by {suggester}</span>
-                                <span className="text-[10px] text-gray-400">·</span>
-                                <span className="text-[10px] text-gray-400">{new Date(book.created_at).toLocaleDateString()}</span>
+
+                  {/* Wishlist: Suggest a Book button */}
+                  {bookView === "wishlist" && (
+                    <button
+                      onClick={() => { setShowSuggest(true); setSuggestMsg(null); }}
+                      className={`${btnClass} mb-4 !text-xs flex items-center gap-1`}
+                    >
+                      ✚ Suggest a Book
+                    </button>
+                  )}
+
+                  {/* Past Reads: Admin-only Add Past Read button */}
+                  {bookView === "past" && isAdmin && (
+                    <button
+                      onClick={() => { setShowAddPast(true); setPastMsg(null); }}
+                      className={`${btnClass} mb-4 !text-xs flex items-center gap-1 !border-green-700 !border-r-green-900 !border-b-green-900 text-green-800`}
+                    >
+                      ✚ Add Past Read
+                    </button>
+                  )}
+
+                  {/* Book list */}
+                  {loading ? (
+                    <div className="flex flex-col items-center py-12">
+                      <div className="text-4xl mb-3 animate-pulse">⏳</div>
+                      <p className="text-sm text-black">Loading...</p>
+                    </div>
+                  ) : books.length === 0 ? (
+                    <div className="flex flex-col items-center py-12">
+                      <div className="text-5xl mb-3">{bookView === "wishlist" ? "📭" : "📖"}</div>
+                      <p className="text-sm font-bold text-black">
+                        {bookView === "wishlist" ? "No books suggested yet!" : "No past reads yet."}
+                      </p>
+                      <p className="text-[11px] text-gray-700 mt-1">
+                        {bookView === "wishlist" ? "Be the first to suggest a book. 📝" : "Past reads will appear here once the first book is read."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {books.map((book) => {
+                        const suggester = book.members?.name || `${book.members?.first_name || ""} ${book.members?.last_name || ""}`.trim() || "Unknown";
+                        return (
+                          <div key={book.id} className="border-2 border-gray-400 border-t-white border-l-white bg-white p-3">
+                            <div className="flex justify-between items-start gap-3">
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-bold text-black">{book.title}</p>
+                                <p className="text-[11px] text-gray-600">by {book.author}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-[10px] text-gray-500">Suggested by {suggester}</span>
+                                  <span className="text-[10px] text-gray-400">·</span>
+                                  <span className="text-[10px] text-gray-400">{new Date(book.created_at).toLocaleDateString()}</span>
+                                </div>
+                                {book.month_read && (
+                                  <span className="text-[10px] text-green-700 mt-1 inline-block">✓ Read {new Date(book.month_read).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</span>
+                                )}
                               </div>
-                              {book.month_read && (
-                                <span className="text-[10px] text-green-700 mt-1 inline-block">✓ Read {new Date(book.month_read).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</span>
+                              {book.amazon_link && (
+                                <a
+                                  href={book.amazon_link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[11px] text-[#000080] underline hover:text-[#0000FF] flex-shrink-0 mt-1"
+                                >
+                                  Amazon ↗
+                                </a>
                               )}
                             </div>
-                            {book.amazon_link && (
-                              <a
-                                href={book.amazon_link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[11px] text-[#000080] underline hover:text-[#0000FF] flex-shrink-0 mt-1"
-                              >
-                                Amazon ↗
-                              </a>
-                            )}
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            )}
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Status bar */}
-        <div className="bg-[#c0c0c0] border-l-[2px] border-t-[2px] border-white border-r-[2px] border-b-[2px] border-black px-[3px] py-[2px] flex items-center -mt-[2px]">
-          <div className="flex items-center gap-1">
-            <div className="w-[12px] h-[12px] bg-[#008080] flex items-center justify-center text-white text-[6px] font-bold border border-white border-r-black border-b-black">B</div>
-            <span className="text-[10px] text-black">Welcome, {userName}</span>
-          </div>
-          <div className="flex-1" />
-          {isAdmin && (
-            <a href="/admin" className="text-[10px] text-[#000080] underline hover:text-[#0000FF] mr-2">Admin Panel</a>
-          )}
-          <span className="text-[10px] text-black">{bookView === "wishlist" ? books.length + " suggestions" : books.length + " read"}</span>
+      {/* Windows 95 Taskbar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#c0c0c0] border-t-2 border-white flex items-center h-[34px] px-[2px] gap-1 z-30">
+        <button className="flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-[3px] py-[2px] font-bold text-sm text-black active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110">
+          <span className="text-sm leading-none">🪟</span>
+          <span className="text-xs tracking-wide">Start</span>
+        </button>
+        <div className="border-l border-gray-400 h-[22px] mx-1" />
+        <button className="flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-2 py-[2px] text-black text-xs active:border-black active:border-t-gray-400 active:border-l-gray-400 shadow-[inset_1px_1px_1px_#00000020]">
+          <span className="text-[10px]">📚</span>
+          <span>DLG Bookclub</span>
+        </button>
+        <div className="flex-1" />
+        <div className="flex items-center gap-2 px-2 h-[22px] border-l border-gray-400">
+          <span className="text-[10px]">🔊</span>
+          <span className="text-[10px] text-black font-bold">{time}</span>
         </div>
       </div>
 
