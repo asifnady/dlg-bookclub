@@ -552,6 +552,16 @@ function Windows95Taskbar() {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#c0c0c0] border-t-2 border-white flex items-center h-[34px] px-[2px] gap-1 z-30">
       <button className="flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-[3px] py-[2px] font-bold text-sm text-black active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110">
+        <svg width="18" height="18" viewBox="0 0 18 18" style={{ display: 'block' }}>
+          <rect x="6" y="3" width="5" height="5" fill="#FF0000" />
+          <rect x="11" y="3" width="5" height="5" fill="#00AA00" />
+          <rect x="6" y="8" width="5" height="5" fill="#0000FF" />
+          <rect x="11" y="8" width="5" height="5" fill="#FFFF00" />
+          <rect x="4" y="4" width="2" height="2" fill="#FF0000" opacity="0.7" />
+          <rect x="4" y="7" width="2" height="2" fill="#0000FF" opacity="0.7" />
+          <rect x="3" y="5" width="1" height="2" fill="#FF0000" opacity="0.5" />
+          <rect x="3" y="7" width="1" height="2" fill="#0000FF" opacity="0.5" />
+        </svg>
         <span className="text-xs tracking-wide font-bold">Start</span>
       </button>
       <div className="border-l border-gray-400 h-[22px] mx-1" />
@@ -871,6 +881,16 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
       {/* Windows 95 Taskbar */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#c0c0c0] border-t-2 border-white flex items-center h-[34px] px-[2px] gap-1 z-30">
         <button className="flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-[3px] py-[2px] font-bold text-sm text-black active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110">
+          <svg width="18" height="18" viewBox="0 0 18 18" style={{ display: 'block' }}>
+            <rect x="6" y="3" width="5" height="5" fill="#FF0000" />
+            <rect x="11" y="3" width="5" height="5" fill="#00AA00" />
+            <rect x="6" y="8" width="5" height="5" fill="#0000FF" />
+            <rect x="11" y="8" width="5" height="5" fill="#FFFF00" />
+            <rect x="4" y="4" width="2" height="2" fill="#FF0000" opacity="0.7" />
+            <rect x="4" y="7" width="2" height="2" fill="#0000FF" opacity="0.7" />
+            <rect x="3" y="5" width="1" height="2" fill="#FF0000" opacity="0.5" />
+            <rect x="3" y="7" width="1" height="2" fill="#0000FF" opacity="0.5" />
+          </svg>
           <span className="text-xs tracking-wide font-bold">Start</span>
         </button>
         <div className="border-l border-gray-400 h-[22px] mx-1" />
