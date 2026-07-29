@@ -708,7 +708,7 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
     { src: "/icons/my_computer.png", label: "My Computer" },
     { src: "/icons/netscape.png", label: "Netscape" },
     { src: "/icons/dial_up.png", label: "Dial-Up Internet" },
-    { src: "/icons/network_neighborhood.png", label: "Network Neighbourhood" },
+    { src: "/icons/network_neighborhood.png", label: "Network" },
     { src: "/icons/winamp.png", label: "Winamp" },
   ];
 
@@ -723,15 +723,15 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
           {desktopIcons.map((di: { src: string; label: string }) => (
             <div key={di.label} className="flex flex-col items-center gap-[2px] w-[72px]">
               <img src={di.src} alt={di.label} className="w-10 h-10 image-rendering-pixelated" draggable={false} />
-              <div className="bg-[#000080] text-white text-[10px] px-[6px] py-[1px] text-center leading-tight font-bold whitespace-nowrap">
+              <div className="bg-[#000080] text-white text-[10px] px-[6px] py-[1px] text-center leading-tight font-bold break-words max-w-[68px]">
                 {di.label}
               </div>
             </div>
           ))}
         </div>
 
-        {/* App window - positioned to the right of icons */}
-        <div className="ml-20 mr-4 mb-2 min-h-[200px] max-h-[calc(100vh-70px)] flex flex-col shadow-[4px_4px_0px_#00000040]">
+        {/* App window - centered floating window */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[calc(100vw-100px)] min-h-[200px] max-h-[calc(100vh-70px)] flex flex-col shadow-[4px_4px_0px_#00000040] z-20">
           {/* Title bar */}
           <div className="bg-[#000080] flex items-center justify-between px-[3px] py-[3px]">
             <div className="flex items-center gap-1">
@@ -872,7 +872,7 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
       {/* Windows 95 Taskbar */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#c0c0c0] border-t-2 border-white flex items-center h-[34px] px-[2px] gap-1 z-30">
         <button className="flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-[3px] py-[2px] font-bold text-sm text-black active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110">
-          <img src="/icons/start_flag.png" alt="" className="w-[18px] h-[18px] image-rendering-pixelated" />
+          <span className="text-sm leading-none" style={{ filter: "grayscale(1) contrast(1.5)" }}>🪟</span>
           <span className="text-xs tracking-wide font-bold">Start</span>
         </button>
         <div className="border-l border-gray-400 h-[22px] mx-1" />
