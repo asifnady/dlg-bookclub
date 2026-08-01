@@ -897,8 +897,8 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
       {/* Admin Panel window (floating, offset from the main app window) */}
       {showAdmin && !adminMinimized && (
         <div
-          className="absolute left-1/2 top-1/2 w-[620px] max-w-[calc(100vw-40px)] h-[min(540px,calc(100vh-80px))] flex flex-col shadow-[4px_4px_0px_#00000040] z-20"
-          style={{ transform: "translate(calc(-50% + 60px), calc(-50% + 60px))" }}
+          className="absolute left-1/2 top-1/2 w-[min(640px,calc(100vw-48px))] h-[min(540px,calc(100vh-80px))] flex flex-col shadow-[4px_4px_0px_#00000040] z-20"
+          style={{ transform: "translate(calc(-50% + min(3vw, 40px)), calc(-50% + min(3vh, 40px)))" }}
         >
           <AdminPanel
             onClose={() => setShowAdmin(false)}
