@@ -49,6 +49,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   // Approve: create member + mark pending as approved
+  // Admin approval = verification: member can log in immediately (no magic link needed)
   const displayName = `${pending.first_name} ${pending.last_name}`.trim();
 
   // Insert member
@@ -58,7 +59,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     first_name: pending.first_name,
     last_name: pending.last_name,
     city: pending.city,
-    verified: false, // they still need to verify via magic link once
+    verified: true, // admin approval is sufficient for verification
     is_admin: false,
   });
 
@@ -76,6 +77,34 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (updateError) {
     console.error("update pending error:", updateError);
     // Non-fatal — member was already created
+  }
+
+  // Welcome email to the new member (via AgentMail)
+  const agentmailKey = process.env.AGENTMAIL_API_KEY;
+  if (agentmailKey) {
+    try {
+      const res = await fetch(
+        "https://api.agentmail.to/v0/inboxes/deskofasifnadeem@agentmail.to/messages/send",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${agentmailKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            to: [pending.email],
+            subject: "🎉 Welcome to DLG Bookclub!",
+            text: `Hi ${pending.first_name},\n\nYour DLG Bookclub membership request has been approved!\n\nYou can log in now at https://dlg-bookclub.vercel.app/login with your email (${pending.email}). No password needed.\n\nHappy reading!\n— DLG Bookclub`,
+          }),
+        }
+      );
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("AgentMail welcome error:", res.status, errText);
+      }
+    } catch (emailErr) {
+      console.error("Failed to send welcome email:", emailErr);
+    }
   }
 
   return NextResponse.json({ status: "approved" });

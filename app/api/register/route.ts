@@ -77,6 +77,22 @@ Approve or reject from the Admin Panel once you log in.`,
       }
     }
 
+    // Ping Discord (optional — requires DISCORD_WEBHOOK_URL env var)
+    const discordWebhook = process.env.DISCORD_WEBHOOK_URL;
+    if (discordWebhook) {
+      try {
+        await fetch(discordWebhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: `📚 **New registration request**: ${first_name.trim()} ${last_name.trim()} (${cleanEmail}, ${city.trim()}) — approve or reject in the Admin Panel.`,
+          }),
+        });
+      } catch (discordErr) {
+        console.error("Failed to send Discord notification:", discordErr);
+      }
+    }
+
     return NextResponse.json({ status: "submitted" });
   } catch (err) {
     console.error("register error:", err);
