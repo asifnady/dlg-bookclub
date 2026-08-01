@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import AdminPanel from "@/components/AdminPanel";
 
 type PageState = "bios" | "dos" | "loading" | "login" | "app";
 
@@ -622,6 +623,10 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
   const [addingPast, setAddingPast] = useState(false);
   const [pastMsg, setPastMsg] = useState<string | null>(null);
 
+  // Admin Panel window state
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminMinimized, setAdminMinimized] = useState(false);
+
   const loadBooks = useCallback(async () => {
     setLoading(true);
     try {
@@ -738,12 +743,15 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
             </div>
           ))}
           {isAdmin && (
-            <a href="/admin" className="flex flex-col items-center gap-[2px] w-[72px] no-underline">
+            <button
+              onClick={() => { setShowAdmin(true); setAdminMinimized(false); }}
+              className="flex flex-col items-center gap-[2px] w-[72px] no-underline bg-transparent border-0 p-0 cursor-pointer"
+            >
               <img src="/icons/control_panel.png" alt="Admin Panel" className="w-10 h-10 image-rendering-pixelated" draggable={false} />
               <div className="bg-[#000080] text-white text-[10px] px-[6px] py-[1px] text-center leading-tight font-bold break-words max-w-[68px]">
                 Admin Panel
               </div>
-            </a>
+            </button>
           )}
         </div>
 
@@ -886,6 +894,19 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
         </div>
       </div>
 
+      {/* Admin Panel window (floating, offset from the main app window) */}
+      {showAdmin && !adminMinimized && (
+        <div
+          className="absolute left-1/2 top-1/2 w-[620px] max-w-[calc(100vw-40px)] h-[min(540px,calc(100vh-80px))] flex flex-col shadow-[4px_4px_0px_#00000040] z-20"
+          style={{ transform: "translate(calc(-50% + 60px), calc(-50% + 60px))" }}
+        >
+          <AdminPanel
+            onClose={() => setShowAdmin(false)}
+            onMinimize={() => setAdminMinimized(true)}
+          />
+        </div>
+      )}
+
       {/* Windows 95 Taskbar */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#c0c0c0] border-t-2 border-white flex items-center h-[34px] px-[2px] gap-1 z-30">
         <button className="flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-[3px] py-[2px] font-bold text-sm text-black active:border-black active:border-t-gray-400 active:border-l-gray-400 hover:brightness-110">
@@ -906,6 +927,15 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
           <span className="text-[10px]">📚</span>
           <span>DLG Bookclub</span>
         </button>
+        {showAdmin && (
+          <button
+            onClick={() => setAdminMinimized((m) => !m)}
+            className={`flex items-center gap-1 bg-[#c0c0c0] border-2 border-white border-r-black border-b-black px-2 py-[2px] text-black text-xs active:border-black active:border-t-gray-400 active:border-l-gray-400 ${!adminMinimized ? "shadow-[inset_1px_1px_1px_#00000020] bg-[#d4d0c8]" : ""}`}
+          >
+            <span className="text-[10px]">🛠</span>
+            <span>Admin Panel</span>
+          </button>
+        )}
         <div className="flex-1" />
         <div className="flex items-center gap-1 px-2 h-[22px] border-l border-gray-400">
           <img src="/icons/speaker.png" alt="" className="w-[14px] h-[14px] image-rendering-pixelated" />
