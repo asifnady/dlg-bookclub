@@ -93,8 +93,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           },
           body: JSON.stringify({
             to: [pending.email],
-            subject: "🎉 Welcome to DLG Bookclub!",
-            text: `Hi ${pending.first_name},\n\nYour DLG Bookclub membership request has been approved!\n\nYou can log in now at https://dlg-bookclub.vercel.app/login with your email (${pending.email}). No password needed.\n\nHappy reading!\n— DLG Bookclub`,
+            subject: "🎉 YOU'RE IN! Welcome to DLG Bookclub (This Is Kind of a Big Deal)",
+            text: `Greetings, ${pending.first_name}! I'm not Ron Burgundy, but I play one at book club. And on behalf of the most distinguished reading society this side of anywhere: YOUR MEMBERSHIP HAS BEEN APPROVED.\n\nYou may now log in at https://dlg-bookclub.vercel.app/login with your email (${pending.email}). No password needed — because when you're this important, you don't need passwords. You need BOOKS.\n\nWe read. We discuss. We occasionally get very serious about snacks. And now, you're officially part of it. I've been waiting for you. We all have. Mostly me.\n\nHappy reading, you magnificent bibliophile!\n— The DLG Bookclub`,
           }),
         }
       );
