@@ -42,29 +42,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
 
-    // Send approval notification via AgentMail to deskofasifnadeem@agentmail.to
+    // Send approval notification via AgentMail to admin + agent inbox
     const agentmailKey = process.env.AGENTMAIL_API_KEY;
     if (agentmailKey) {
       try {
-        const res = await fetch("https://api.agentmail.to/v1/messages", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${agentmailKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "deskofasifnadeem@agentmail.to",
-            to: "deskofasifnadeem@agentmail.to",
-            subject: `📚 New Registration: ${first_name.trim()} ${last_name.trim()}`,
-            text: `New DLG Bookclub registration request:
+        const res = await fetch(
+          "https://api.agentmail.to/v0/inboxes/deskofasifnadeem@agentmail.to/messages/send",
+          {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${agentmailKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              to: ["a.nadeem89@gmail.com", "deskofasifnadeem@agentmail.to"],
+              subject: `📚 New Registration: ${first_name.trim()} ${last_name.trim()}`,
+              text: `New DLG Bookclub registration request:
 
 Name: ${first_name.trim()} ${last_name.trim()}
 Email: ${cleanEmail}
 City: ${city.trim()}
 
 Approve or reject from the Admin Panel once you log in.`,
-          }),
-        });
+            }),
+          }
+        );
 
         if (!res.ok) {
           const errText = await res.text();
