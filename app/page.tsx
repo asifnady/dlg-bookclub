@@ -737,6 +737,14 @@ function MemberDashboard({ userName, isAdmin, onLogout }: { userName: string; is
               </div>
             </div>
           ))}
+          {isAdmin && (
+            <a href="/admin" className="flex flex-col items-center gap-[2px] w-[72px] no-underline">
+              <img src="/icons/control_panel.png" alt="Admin Panel" className="w-10 h-10 image-rendering-pixelated" draggable={false} />
+              <div className="bg-[#000080] text-white text-[10px] px-[6px] py-[1px] text-center leading-tight font-bold break-words max-w-[68px]">
+                Admin Panel
+              </div>
+            </a>
+          )}
         </div>
 
         {/* App window - centered floating window */}

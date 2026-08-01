@@ -18,7 +18,7 @@
 
 | Layer | Technology | Why |
 |---|---|---|
-| Framework | **Next.js 15** (React, TypeScript, Tailwind, App Router) | Frontend + API routes in one project |
+| Framework | **Next.js 16** (React, TypeScript, Tailwind, App Router) | Frontend + API routes in one project |
 | Databases | **Supabase** (PostgreSQL) | Database, row-level security |
 | Auth | **Supabase Auth** — Magic link (one-time) + custom session token | Verify email once, auto-login thereafter |
 | Emails | **AgentMail** (`deskofasifnadeem@agentmail.to`) | Registration notifications, member-facing emails |

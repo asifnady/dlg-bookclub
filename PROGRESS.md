@@ -29,7 +29,7 @@
 
 - [x] GitHub repo created: `asifnady/dlg-bookclub`
 - [x] Supabase project created (`ozyvwadyfgqslvrckles.supabase.co`)
-- [x] Next.js 15 scaffolded (TypeScript, Tailwind, App Router)
+- [x] Next.js 16 scaffolded (TypeScript, Tailwind, App Router)
 - [x] `@supabase/supabase-js` + `@supabase/ssr` installed
 - [x] `lib/supabase/client.ts` + `lib/supabase/server.ts` created
 - [x] Full DB schema with tables + indexes created in Supabase
@@ -150,7 +150,7 @@
 
 ## Key Decisions
 
-- **Stack:** Next.js 15 + TypeScript + Tailwind + Supabase + AgentMail + Google Calendar
+- **Stack:** Next.js 16 + TypeScript + Tailwind + Supabase + AgentMail + Google Calendar
 - **Auth:** Hybrid — Supabase magic link (one-time verify) + custom session token (returning)
 - **UI:** Retro Windows 95 boot-up experience
 - **Registration:** Self-registration with admin approval

@@ -16,7 +16,7 @@
 - All tables created (see `SCHEMA.md`)
 
 ### 1.3 Scaffold Next.js
-- Next.js 15 + TypeScript + Tailwind + App Router
+- Next.js 16 + TypeScript + Tailwind + App Router
 - `@supabase/supabase-js` + `@supabase/ssr` installed
 - `lib/supabase/client.ts` + `lib/supabase/server.ts`
 
